@@ -35,4 +35,3 @@ coverage.xml
 
 #db sqlite files
 db.sqlite3*
-
