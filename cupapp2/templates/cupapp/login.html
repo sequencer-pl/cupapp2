@@ -1,0 +1,13 @@
+{% extends "cupapp/base.html" %}
+{% block body_block %}
+{% include "cupapp/nav.html" %}
+<div class="jumbotron text-center">
+<h2>CupApp2</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Login"></input>
+    <!--<button type="submit">Login</button>-->
+</form>
+</div>
+{% endblock %}

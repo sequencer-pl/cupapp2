@@ -1,0 +1,24 @@
+{% extends "cupapp/base.html" %}
+{% block body_block %}
+{% include "cupapp/nav.html" %}
+{% if user.is_authenticated %}
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 text-center">
+                <a href="newcup">
+                    <button class="btn btn-success">Create new cup</button>
+                </a>
+            </div>
+            <div class="col-sm-12 col-md-6 text-center">
+                <a href="cups">
+                    <button class="btn btn-primary">List of my cups</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+PLEASE LOG IN
+{% endif %}
+{% endblock %}

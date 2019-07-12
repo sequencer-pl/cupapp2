@@ -1,0 +1,133 @@
+{% extends "cupapp/base.html" %}
+{% block body_block %}
+{% include "cupapp/nav.html" %}
+<div class="container">
+    <form method="post">{% csrf_token %}
+        <table class="table">
+            {{ newcup.as_table }}
+        </table>
+
+        <label><b>Players:</b></label>
+        <!--<table class="table">-->
+        {{ players.management_form }}
+        {% for player in players.forms %}
+        <div class="row form-row">
+                <div class="input-group">
+                    <div class="col-7 player">
+                    {{ player.name }}
+                    </div>
+                    <div class="col-3 stars">
+                    {{ player.stars }}
+                    </div>
+                    <div class="col-2">
+                    <p class="btn btn-danger remove-form-row float-center"><b>-</b></p>
+                    </div>
+                </div>
+        </div>
+        {% if forloop.last %}
+        <hr>
+        <div class="row">
+            <div class="col-8">
+                <div class="input-group-append">
+                    <button class="btn btn-primary add-form-row">Add another player</button>
+                </div>
+            </div>
+            <div class="col-4">
+                <input type="submit" value="Create" class="btn btn-success float-right"
+                       onclick="return validatePlayers();">
+            </div>
+        </div>
+
+        {% endif %}
+        {% endfor %}
+    </form>
+</div>
+<script type='text/javascript'>
+function validatePlayers() {
+    var minPlayers;
+    if (parseInt($('#id_mode')[0].value) == '11') {
+        minPlayers = 2;
+    } else if (parseInt($('#id_mode')[0].value) == '21') {
+        minPlayers = 3;
+    } else {
+        minPlayers = 4
+    }
+    if (minPlayers > $('.form-row').length){
+        alert("Invalid number of players for this game mode!");
+        console.log("Validation failed");
+        return false;
+    } else if (1 == 1) {
+        $('.player').each(function() {
+            if ($(this)[0].children[0].value == "") {
+                alert("Player's name can't be empty!");
+                console.log("Validation failed2");
+                return false;
+            }
+        });
+    } else {
+        console.log("Validation successful");
+        return true;
+    }
+}
+
+function updateElementIndex(el, prefix, ndx) {
+    var id_regex = new RegExp('(' + prefix + '-\\d+)');
+    var replacement = prefix + '-' + ndx;
+    if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+    if (el.id) el.id = el.id.replace(id_regex, replacement);
+    if (el.name) el.name = el.name.replace(id_regex, replacement);
+}
+function cloneMore(selector, prefix) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+
+    newElement.find(':input').each(function() {
+        var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
+        var id = 'id_' + name;
+        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+    });
+    total++;
+    $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement);
+    console.log($('.stars:last'))
+    $('.stars:last')[0].children[0].value = "10"
+    var conditionRow = $('.form-row:not(:last)');
+
+    return false;
+}
+function deleteForm(prefix, btn) {
+    var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    if (total > 1){
+        btn.closest('.form-row').remove();
+        var forms = $('.form-row');
+        $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+        for (var i=0, formCount=forms.length; i<formCount; i++) {
+            $(forms.get(i)).find(':input').each(function() {
+                updateElementIndex(this, prefix, i);
+            });
+        }
+    }
+    return false;
+}
+$(document).on('click', '.add-form-row', function(e){
+    e.preventDefault();
+    cloneMore('.form-row:last', 'form');
+    return false;
+});
+$(document).on('click', '.remove-form-row', function(e){
+    e.preventDefault();
+    deleteForm('form', $(this));
+    return false;
+});
+
+</script>
+{% endblock %}
+
+
+    <!--$('#id_' + prefix + '-TOTAL_FORMS').val(total);-->
+    <!--$(selector).after(newElement);-->
+    <!--var conditionRow = $('.form-row:not(:last)');-->
+    <!--conditionRow.find('.btn.add-form-row')-->
+    <!--.removeClass('btn-success').addClass('btn-danger')-->
+    <!--.removeClass('add-form-row').addClass('remove-form-row')-->
+    <!--.html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');-->

@@ -1,0 +1,12 @@
+{% extends "cupapp/base.html" %}
+{% block body_block %}
+{% include "cupapp/nav.html" %}
+
+<h1>All your cups</h1>
+<ol>
+    {% for cup in cups %}
+    <li><a href="{{ cup.id }}">{{ cup.name }}</a></li>
+    {% endfor %}
+</ol>
+
+{% endblock %}

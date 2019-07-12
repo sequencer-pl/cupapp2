@@ -1,0 +1,154 @@
+{% extends "cupapp/base.html" %}
+{% block body_block %}
+{% include "cupapp/nav.html" %}
+
+<div class="container-fluid">
+    <div class="row">
+        <!--<div class="col-md-12 col-xl-12">-->
+        <!--<h5 class="text-center">{% if cup.description %}{{ cup.description }}{% else %}{{ cup }}{% endif %}</h5>-->
+        <!--</div>-->
+        <div class="col-lg-12 col-xl-5">
+            <!--<h5>{{ cup.name }}</h5>-->
+            <!--<p>Description: {{ cup.description }}</p>-->
+            <!--<p>Form: {{ cup.form }}</p>-->
+            <!--<p>Owner: {{ cup.owner }}</p>-->
+            <br/>
+            {% if next_matchday %}
+            <h5 class="text-center">Next Matchday</h5><hr />
+            <form action="" method="POST">
+                {% csrf_token %}
+                <!--<table class="table">-->
+                    <!--<tr>-->
+                        <!--<td><b>-->
+                            <!--{% for fixture_player in next_matchday.home_players %}-->
+                            <!--{{ fixture_player.player.name }}<br/>-->
+                            <!--{% endfor %}-->
+                        <!--</b></td>-->
+                        <!--<td><input class="form-control" type="number" id="home_goals" name="home_goals"-->
+                                   <!--value="{{ next_matchday.home_goals }}"></td>-->
+                        <!--<td><input class="form-control" type="number" id="away_goals" name="away_goals"-->
+                                   <!--value="{{ next_matchday.away_goals }}"></td>-->
+                        <!--<td><b>-->
+                            <!--{% for fixture_player in next_matchday.away_players %}-->
+                            <!--{{ fixture_player.player.name }}<br/>-->
+                            <!--{% endfor %}-->
+                        <!--</b></td>-->
+                        <!--{% if next_matchday.home_goals is None %}-->
+                        <!--<td><input type="submit" value="confirm" class="btn btn-primary btn-sm"></td>-->
+                        <!--{% else %}-->
+                        <!--<td><input type="submit" value="correct" class="btn btn-warning btn-sm"></td>-->
+                        <!--{% endif %}-->
+                    <!--</tr>-->
+                <!--</table>-->
+                <div class="row">
+                        <div class="col-4 col-md-2 offset-md-2 col-lg-4 offset-lg-0 text-right"><b>
+                            {% for fixture_player in next_matchday.home_players %}
+                            {{ fixture_player.player.name }}<br/>
+                            {% endfor %}
+                        </b></div>
+                        <div class="col-2 col-md-2 col-lg-2"><input class="form-control" type="number" id="home_goals" name="home_goals"
+                                   value="{{ next_matchday.home_goals }}"></div>
+                        <div class="col-2 col-md-2 col-lg-2"><input class="form-control" type="number" id="away_goals" name="away_goals"
+                                   value="{{ next_matchday.away_goals }}"></div>
+                        <div class="col-4 col-md-2 col-lg-4"><b>
+                            {% for fixture_player in next_matchday.away_players %}
+                            {{ fixture_player.player.name }}<br />
+                            {% endfor %}
+                        </b></div>
+                        <div class="col-12 col-md-12 col-lg-12 text-center">
+                            {% if next_matchday.home_goals is None %}
+                            <td><input type="submit" value="confirm" class="btn btn-primary btn-sm"></td>
+                            {% else %}
+                            <td><input type="submit" value="correct" class="btn btn-warning btn-sm"></td>
+                            {% endif %}
+                        </div>
+
+                </div>
+            </form>
+            <!--<hr/>-->
+            <br/>
+            {% endif %}
+        </div>
+        <div class="col-lg-12 col-xl-7">
+            <br/>
+            <h5 class="text-center">Table</h5>
+            <table class="table">
+                <tr>
+                    <th>Rank</th>
+                    <th>Player's Name</th>
+                    <th class="d-none d-lg-table-cell">MP</th>
+                    <th class="d-none d-sm-table-cell">W</th>
+                    <th class="d-none d-sm-table-cell">D</th>
+                    <th class="d-none d-sm-table-cell">L</th>
+                    <th class="d-none d-md-table-cell">+</th>
+                    <th class="d-none d-md-table-cell">-</th>
+                    <th>+/-</th>
+                    <th>Pts</th>
+                </tr>
+                {% for row in table %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ row.player_name }}</td>
+                    <td class="d-none d-lg-table-cell">{{ row.stats.games }}</td>
+                    <td class="d-none d-sm-table-cell">{{ row.stats.wins }}</td>
+                    <td class="d-none d-sm-table-cell">{{ row.stats.draws }}</td>
+                    <td class="d-none d-sm-table-cell">{{ row.stats.lost }}</td>
+                    <td class="d-none d-md-table-cell">{{ row.stats.goals_scored }}</td>
+                    <td class="d-none d-md-table-cell">{{ row.stats.goals_lost }}</td>
+                    <td>{{ row.stats.goal_difference }}</td>
+                    <td>{{ row.stats.points }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="{% url 'home' %}" class="btn btn-sm btn-light">Show full table</a>
+            <!--<hr/>-->
+            <br/>
+        </div>
+        <div class="col-sm-12 col-xl-10 offset-xl-1">
+            <br/>
+            <h5 class="text-center">Schedule</h5>
+            <!--<p>{{ schedule }}</p>-->
+            <!--<p>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</p>-->
+            <table class="table">
+                {% for fixture in schedule %}
+                <tr>
+                    <td width="10%">{{ fixture.matchday }}</td>
+                    <td class="text-right"><b>
+                        {% for fixture_player in fixture.home_players %}
+                        {{ fixture_player.player.name }}<br/>
+                        {% endfor %}
+                    </b></td>
+                    {% if fixture.home_goals is not None and fixture.away_goals is not None %}
+                    <td class="text-right">
+                        {{ fixture.home_goals }}
+                    </td>
+                    <td class="text-left">
+                        {{ fixture.away_goals }}
+                    </td>
+                    {% else %}
+                    <td colspan="2" class="text-center">
+                        VS
+                    </td>
+                    {% endif %}
+                    <td class="text-left"><b>
+                        {% for fixture_player in fixture.away_players %}
+                        {{ fixture_player.player.name }}<br/>
+                        {% endfor %}
+                    </b></td>
+                    <td width="10%">
+                        {% if fixture.home_goals is not None %}
+                        <a href="?edit={{ fixture.fixture_id }}" class="btn btn-light btn-sm">Edit</a>
+                        {% else %}
+                        <a href="?next={{ fixture.fixture_id }}" class="btn btn-light btn-sm">Next</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <!--<hr/>-->
+            <br/>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
