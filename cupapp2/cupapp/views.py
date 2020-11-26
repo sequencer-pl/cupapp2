@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -14,7 +16,8 @@ from logger.logging import logging_setup
 logging_setup()
 
 
-class Home(TemplateView):
+class Home(LoginRequiredMixin, TemplateView):
+    login_url = 'login'
     template_name = 'cupapp/home.html'
 
     def get_context_data(self, **kwargs):
@@ -22,13 +25,15 @@ class Home(TemplateView):
         return context
 
 
-class Cups(ListView):
+class Cups(LoginRequiredMixin, ListView):
+    login_url = 'login'
     context_object_name = 'cups'
     model = models.Cup
     template_name = 'cupapp/cups.html'
 
 
-class Cup(TemplateView):
+class Cup(LoginRequiredMixin, TemplateView):
+    login_url = 'login'
     template_name = 'cupapp/cup.html'
 
     def post(self, request, *args, **kwargs):
@@ -155,6 +160,7 @@ class Cup(TemplateView):
         return table
 
 
+@login_required(login_url='login')
 def new_cup(request):
     template_name = 'cupapp/newcup.html'
     if request.method == 'POST':
