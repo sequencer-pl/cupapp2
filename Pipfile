@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pytz = "==2018.7"
-Django = "==2.1.3"
-PyYAML = "==3.13"
+pytz = "*"
+Django = "*"
+PyYAML = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8.6"
