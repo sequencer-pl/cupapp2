@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -14,7 +16,8 @@ from logger.logging import logging_setup
 logging_setup()
 
 
-class Home(TemplateView):
+class Home(LoginRequiredMixin, TemplateView):
+    login_url = 'login'
     template_name = 'cupapp/home.html'
 
     def get_context_data(self, **kwargs):
@@ -22,13 +25,42 @@ class Home(TemplateView):
         return context
 
 
-class Cups(ListView):
+class Cups(LoginRequiredMixin, ListView):
+    login_url = 'login'
     context_object_name = 'cups'
     model = models.Cup
     template_name = 'cupapp/cups.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(Cups, self).get_context_data(**kwargs)
+        context['cups_info'] = []
+        for cup in context.get('cups'):
+            context['cups_info'].append({
+                'id': cup.id,
+                'name': cup.name,
+                'description': cup.description,
+                'form': cup.form,
+                'owner': cup.owner,
+                'home_slots': cup.home_slots,
+                'away_slots': cup.away_slots,
+                'players': [p for p in models.Player.objects.select_related('cup').filter(cup=cup)],
+                'games_played': len(
+                    [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
+                     if not f.home_goals and not f.away_goals]
+                ),
+                'games_total': len(models.Fixture.objects.select_related('cup').filter(cup=cup)),
+            })
+        logging.debug(context)
+        return context
 
-class Cup(TemplateView):
+
+def get_players_by_cup_id(_id):
+    queryset = models.Player.objects.select_related('cup').get(id=_id)
+    return queryset
+
+
+class Cup(LoginRequiredMixin, TemplateView):
+    login_url = 'login'
     template_name = 'cupapp/cup.html'
 
     def post(self, request, *args, **kwargs):
@@ -159,6 +191,7 @@ class Cup(TemplateView):
         return table
 
 
+@login_required(login_url='login')
 def new_cup(request):
     template_name = 'cupapp/newcup.html'
     if request.method == 'POST':

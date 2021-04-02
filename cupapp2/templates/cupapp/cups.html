@@ -2,11 +2,119 @@
 {% block body_block %}
 {% include "cupapp/nav.html" %}
 
-<h1>All your cups</h1>
-<ol>
-    {% for cup in cups %}
-    <li><a href="{{ cup.id }}">{{ cup.name }}</a></li>
+<br />
+<div class="container">
+    {% for cup in cups_info %}
+    <div class="row border rounded">
+        <div class="col">
+            <div class="row">
+                <div class="col-10">
+                    <a href="{{ cup.id }}">
+                        <big># {{ cup.id }} <b>{% if cup.description %}{{ cup.description }} {% else %} {{ cup.name }} {% endif %}</b></big>
+                    </a>
+                </div>
+                <div class="col-2 text-right">
+                    <a href="{{ cup.id }}">
+                        <div class="btn btn-primary btn-sm">
+                            Details
+                        </div>
+                    </a>
+                </div>
+
+<!--            </div>-->
+<!--            <div class="row">-->
+                <div class="col-6">
+                    {{ cup.form }} # <b>{{ cup.home_slots }} vs {{ cup.away_slots }}</b>
+                </div>
+                <div class="col-6 text-right">
+                    {{ cup.games_played }} matches played out of {{ cup.games_total }}
+                </div>
+                <div class="col-12">
+                    {% for player in cup.players %}
+                    {% if forloop.counter != 1 %} - {% endif %}<small><i>{{ player }}</i></small>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
     {% endfor %}
-</ol>
+</div>
+
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
+<div class="container">
+    {% for cup in cups_info %}
+        <div class="row border rounded">
+                <div class="col-6 col-md-8 border">
+                    <div class="row">
+                        <div class="col-4 col-md-10">
+                            <a href="{{ cup.id }}">
+                                # {{ cup.id }} <b>{% if cup.description %}{{ cup.description }} {% else %} {{ cup.name }} {% endif %}</b>
+                            </a>
+                        </div>
+                        <div class="col-4 col-md-2 text-right">
+                            <a href="{{ cup.id }}">
+                                <div class="btn btn-primary btn-sm">
+                                    Details
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-6">
+                            {{ cup.form }} # <b>{{ cup.home_slots }} vs {{ cup.away_slots }}</b>
+                        </div>
+                        <div class="col-6 col-md-6 text-right">
+                            {{ cup.games_played }} matches played out of {{ cup.games_total }}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    {% for player in cup.players %}
+                    <div class="col-12">
+                        <small>{{ player }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+        </div>
+    <br />
+    {% endfor %}
+</div>
+
+
+<br /><br /><br /><br /><br />
+<h1 align="center">All your cups</h1>
+<div align="center">
+    <ol>
+        {% for cup in cups_info %}
+            <li><a href="{{ cup.id }}">{{ cup.name }}</a> :: {{ cup.description }}</li>
+            {{ cup.created }} - {% for p in cup.players %} {{ p }} {% endfor %}
+        {% endfor %}
+    </ol>
+</div>
+<div class="container">
+    <div class="row">
+      <div class="col-xs-6 col-sm-6 col-sm-push-6 col-md-6 col-md-push-6">
+        <div class="row border">
+            <div class="col-xs-6 border">
+                1
+            </div>
+            <div class="col-xs-6">
+                2
+            </div>
+        </div>
+      </div>
+      <div class="col-xs-6 col-sm-6 col-sm-pull-6 col-md-6 col-md-pull-6">
+        text
+      </div>
+      <div class="col-xs-6 col-sm-6 col-sm-push-6 col-md-6 col-md-push-0">
+        exp
+      </div>
+    </div>
+</div>
+
 
 {% endblock %}
