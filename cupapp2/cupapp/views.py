@@ -31,6 +31,33 @@ class Cups(LoginRequiredMixin, ListView):
     model = models.Cup
     template_name = 'cupapp/cups.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(Cups, self).get_context_data(**kwargs)
+        context['cups_info'] = []
+        for cup in context.get('cups'):
+            context['cups_info'].append({
+                'id': cup.id,
+                'name': cup.name,
+                'description': cup.description,
+                'form': cup.form,
+                'owner': cup.owner,
+                'home_slots': cup.home_slots,
+                'away_slots': cup.away_slots,
+                'players': [p for p in models.Player.objects.select_related('cup').filter(cup=cup)],
+                'games_played': len(
+                    [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
+                     if not f.home_goals and not f.away_goals]
+                ),
+                'games_total': len(models.Fixture.objects.select_related('cup').filter(cup=cup)),
+            })
+        logging.debug(context)
+        return context
+
+
+def get_players_by_cup_id(_id):
+    queryset = models.Player.objects.select_related('cup').get(id=_id)
+    return queryset
+
 
 class Cup(LoginRequiredMixin, TemplateView):
     login_url = 'login'

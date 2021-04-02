@@ -15,6 +15,9 @@ class Cup(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-created']
+
     def __str__(self):
         return f'{self.name}'
 
