@@ -16,7 +16,8 @@ class NewCup(forms.Form):
                                   widget=forms.TextInput(attrs={'placeholder': 'Your friendly cup name '}))
     cup_formulas = (
         # ('cup', 'cup'),
-        ('league', 'league'),
+        ('league', 'League'),
+        ('smart_league', 'Smart League'),
     )
     form = forms.ChoiceField(choices=cup_formulas)
     modes = (

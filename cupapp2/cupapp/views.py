@@ -7,12 +7,11 @@ from django.urls import reverse
 from django.views.generic import TemplateView, ListView
 
 from cupapp import models
-from cupapp.core import League
+from cupapp.core import League, SmartLeague
 from cupapp.forms import NewCup, PlayerFormset, SubmitFixture
 import logging
 
 from logger.logging import logging_setup
-
 logging_setup()
 
 
@@ -28,7 +27,7 @@ class Home(LoginRequiredMixin, TemplateView):
 class Cups(LoginRequiredMixin, ListView):
     login_url = 'login'
     context_object_name = 'cups'
-    model = models.Cup
+    model = models.Tournament
     template_name = 'cupapp/cups.html'
 
     def get_context_data(self, **kwargs):
@@ -46,10 +45,14 @@ class Cups(LoginRequiredMixin, ListView):
                 'players': [p for p in models.Player.objects.select_related('cup').filter(cup=cup)],
                 'games_played': len(
                     [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
-                     if not f.home_goals and not f.away_goals]
+                     if f.home_goals and f.away_goals]
                 ),
                 'games_total': len(models.Fixture.objects.select_related('cup').filter(cup=cup)),
             })
+        s = [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)]
+        logging.debug(s)
+        logging.debug([f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
+                       if not f.home_goals and not f.away_goals])
         logging.debug(context)
         return context
 
@@ -76,11 +79,10 @@ class Cup(LoginRequiredMixin, TemplateView):
             fixture.away_goals = int(context['submit_fixture_form'].cleaned_data.get('away_goals'))
             fixture.save()
         return HttpResponseRedirect(reverse('cup', kwargs={'pk': context['cup'].id}))
-        # return HttpResponseRedirect('')
 
     def get_context_data(self, **kwargs):
         context = super(Cup, self).get_context_data(**kwargs)
-        context['cup'] = models.Cup.objects.get(id=kwargs.get('pk'))
+        context['cup'] = models.Tournament.objects.get(id=kwargs.get('pk'))
         context['players'] = models.Player.objects.filter(cup=context.get('cup'))
         fixtures = models.Fixture.objects.filter(cup=context.get('cup')).select_related('cup')
         context['fixtures'] = fixtures
@@ -112,10 +114,9 @@ class Cup(LoginRequiredMixin, TemplateView):
 
         context['schedule'] = schedule
         context['table'] = self.build_table(context)
-        # logging.debug(connection.queries[-1])
 
         context['submit_fixture_form'] = SubmitFixture(self.request.POST or None)
-
+        logging.debug(context)
         return context
 
     @staticmethod
@@ -198,7 +199,7 @@ def new_cup(request):
         newcup = NewCup(request.POST)
         players_formset = PlayerFormset(request.POST)
         if newcup.is_valid() and players_formset.is_valid():
-            cup = models.Cup()
+            cup = models.Tournament()
             cup.name = newcup.cleaned_data.get('name')
             cup.description = newcup.cleaned_data.get('description')
             cup.home_slots = newcup.cleaned_data.get('mode')[0]
@@ -218,12 +219,20 @@ def new_cup(request):
                     players[player.name] = player
                     player.save()
 
-            schedule = League(
-                form=cup.form,
-                players_home=cup.home_slots,
-                players_away=cup.away_slots,
-                players=players.keys()
-            ).create_schedule()
+            if cup.form == 'smart_league':
+                league = SmartLeague(
+                    home_slots=cup.home_slots,
+                    away_slots=cup.away_slots,
+                    players=players.keys()
+                )
+                league.next_round()
+                schedule = league.schedule
+            else:
+                schedule = League(
+                    home_slots=cup.home_slots,
+                    away_slots=cup.away_slots,
+                    players=players.keys()
+                ).create_schedule()
 
             matchday = 1
             for fixture in schedule:
