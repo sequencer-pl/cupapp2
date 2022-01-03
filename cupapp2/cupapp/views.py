@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView, ListView
 
 from cupapp import models
-from cupapp.core import League, SmartLeague
+from cupapp.core import League, SmartLeague, build_table
 from cupapp.forms import NewCup, PlayerFormset, SubmitFixture
 import logging
 
@@ -113,82 +113,11 @@ class Cup(LoginRequiredMixin, TemplateView):
             context['next_matchday'] = next((f for f in schedule if f['fixture_id'] == int(fixture_id)), None)
 
         context['schedule'] = schedule
-        context['table'] = self.build_table(context)
+        context['table'] = build_table(context)
 
         context['submit_fixture_form'] = SubmitFixture(self.request.POST or None)
         logging.debug(context)
         return context
-
-    @staticmethod
-    def build_table(context):
-        stats = {}
-        for fp in context.get('players'):
-            stats[fp.name] = {
-                "points": 0,
-                "games": 0,
-                "wins": 0,
-                "draws": 0,
-                "lost": 0,
-                "goals_scored": 0,
-                "goals_lost": 0,
-                "goal_difference": 0,
-            }
-        for fixture in context.get('schedule'):
-            if fixture.get('home_goals') is None:
-                continue
-            if fixture['home_goals'] > fixture['away_goals']:
-                for fp in fixture['home_players']:
-                    stats[fp.player.name]['points'] += 3
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['wins'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['home_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['away_goals']
-                    stats[fp.player.name]['goal_difference'] = \
-                        (stats[fp.player.name]['goals_scored']-stats[fp.player.name]['goals_lost'])
-                for fp in fixture['away_players']:
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['lost'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['away_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['home_goals']
-                    stats[fp.player.name]['goal_difference'] = \
-                        (stats[fp.player.name]['goals_scored'] - stats[fp.player.name]['goals_lost'])
-            elif fixture['home_goals'] == fixture['away_goals']:
-                for fp in fixture['home_players']:
-                    stats[fp.player.name]['points'] += 1
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['draws'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['home_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['away_goals']
-                for fp in fixture['away_players']:
-                    stats[fp.player.name]['points'] += 1
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['draws'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['away_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['home_goals']
-            elif fixture['home_goals'] < fixture['away_goals']:
-                for fp in fixture['home_players']:
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['lost'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['home_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['away_goals']
-                    stats[fp.player.name]['goal_difference'] = \
-                        (stats[fp.player.name]['goals_scored'] - stats[fp.player.name]['goals_lost'])
-                for fp in fixture['away_players']:
-                    stats[fp.player.name]['points'] += 3
-                    stats[fp.player.name]['games'] += 1
-                    stats[fp.player.name]['wins'] += 1
-                    stats[fp.player.name]['goals_scored'] += fixture['away_goals']
-                    stats[fp.player.name]['goals_lost'] += fixture['home_goals']
-                    stats[fp.player.name]['goal_difference'] = \
-                        (stats[fp.player.name]['goals_scored'] - stats[fp.player.name]['goals_lost'])
-        table = []
-        for p, s in stats.items():
-            table.append({"player_name": p, "stats": s})
-        table.sort(key=lambda x: (x.get('stats').get('points'),
-                                  x.get('stats').get('goal_difference'),
-                                  x.get('stats').get('goals_scored')),
-                   reverse=True)
-        return table
 
 
 @login_required(login_url='login')
