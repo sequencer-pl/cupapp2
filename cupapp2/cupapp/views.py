@@ -45,15 +45,10 @@ class Cups(LoginRequiredMixin, ListView):
                 'players': [p for p in models.Player.objects.select_related('cup').filter(cup=cup)],
                 'games_played': len(
                     [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
-                     if f.home_goals and f.away_goals]
+                     if f.home_goals is not None and f.away_goals is not None]
                 ),
                 'games_total': len(models.Fixture.objects.select_related('cup').filter(cup=cup)),
             })
-        s = [f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)]
-        logging.debug(s)
-        logging.debug([f for f in models.Fixture.objects.select_related('cup').filter(cup=cup)
-                       if not f.home_goals and not f.away_goals])
-        logging.debug(context)
         return context
 
 
