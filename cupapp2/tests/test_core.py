@@ -1,23 +1,9 @@
-from django.contrib.auth.models import User
+from collections import namedtuple
+
 from django.test import TestCase
 from parameterized import parameterized
 
-from cupapp.core import League, WrongNumberOfPlayersException, SmartLeague  # SurvivalCup
-from cupapp.models import Tournament
-
-
-class AdminTest(TestCase):
-    cupName = 'CupOne'
-    cupDesc = 'SomeDesc'
-
-    def setUp(self):
-        User.objects.create_superuser(username='testuser', email='test@test.com', password='pass')
-        Tournament.objects.create(name=self.cupName, description=self.cupDesc, form=('cup', 'cup'),
-                                  owner=User.objects.get(username='testuser'))
-
-    def test_if_proper_cup_name_in_admin(self):
-        cup_one = Tournament.objects.get(name=self.cupName)
-        self.assertEqual(str(cup_one), f'{self.cupName}')
+from cupapp.core import League, WrongNumberOfPlayersException, SmartLeague, build_table
 
 
 class TournamentLeagueTest(TestCase):
@@ -68,6 +54,67 @@ class TournamentLeagueTest(TestCase):
         for i in range(len(schedule)):
             self.assertEqual(schedule[i][0], rematch_round[i][1], err_msg)
             self.assertEqual(schedule[i][1], rematch_round[i][0], err_msg)
+
+    @parameterized.expand([
+        ([(0, 0)], [1, 1, 0, 0, 0, 0, 1, 0], [1, 1, 0, 0, 0, 0, 1, 0]),
+        ([(2, 0)], [0, 1, 2, 0, 2, 0, 3, 1], [0, 1, -2, 2, 0, 1, 0, 0]),
+        ([(3, 0), (None, None), (1, 1)], [1, 2, 3, 1, 4, 0, 4, 1], [1, 2, -3, 4, 1, 1, 1, 0]),
+    ])
+    def test_build_table_returns_table_from_context(
+            self, fixtures, player_a_stats, player_b_stats
+    ):
+        # given
+        player = namedtuple('player', ('player', 'name'))
+        player_name = namedtuple('name', ('name',))
+        p1 = player(player_name('A'), 'A')
+        p2 = player(player_name('B'), 'B')
+        context = {
+            'players': [p1, p2],
+            'schedule': [
+                {
+                    'home_players': [p1],
+                    'home_goals': f[0],
+                    'away_players': [p2],
+                    'away_goals': f[1]
+                } for f in fixtures
+            ]
+        }
+
+        expected_table = [
+            {
+                'player_name': 'A',
+                'stats': {
+                    'draws': player_a_stats[0],
+                    'games': player_a_stats[1],
+                    'goal_difference': player_a_stats[2],
+                    'goals_lost': player_a_stats[3],
+                    'goals_scored': player_a_stats[4],
+                    'lost': player_a_stats[5],
+                    'points': player_a_stats[6],
+                    'wins': player_a_stats[7]
+                }
+            },
+            {
+                'player_name': 'B',
+                'stats': {
+                    'draws': player_b_stats[0],
+                    'games': player_b_stats[1],
+                    'goal_difference': player_b_stats[2],
+                    'goals_lost': player_b_stats[3],
+                    'goals_scored': player_b_stats[4],
+                    'lost': player_b_stats[5],
+                    'points': player_b_stats[6],
+                    'wins': player_b_stats[7]
+                }
+            }
+        ]
+
+        # when
+        table = build_table(context)
+
+        # then
+        self.assertEqual(table, expected_table,
+                         msg="Not expected tournament table data generated from context")
 
 
 class SmartLeagueTest(TestCase):

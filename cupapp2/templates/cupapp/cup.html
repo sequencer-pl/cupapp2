@@ -4,52 +4,26 @@
 
 <div class="container-fluid">
     <div class="row">
-        <!--<div class="col-md-12 col-xl-12">-->
-        <!--<h5 class="text-center">{% if cup.description %}{{ cup.description }}{% else %}{{ cup }}{% endif %}</h5>-->
-        <!--</div>-->
         <div class="col-lg-12 col-xl-5">
-            <!--<h5>{{ cup.name }}</h5>-->
-            <!--<p>Description: {{ cup.description }}</p>-->
-            <!--<p>Form: {{ cup.form }}</p>-->
-            <!--<p>Owner: {{ cup.owner }}</p>-->
             <br/>
             {% if next_matchday %}
             <h5 class="text-center">Next Matchday</h5><hr />
             <form action="" method="POST">
                 {% csrf_token %}
-                <!--<table class="table">-->
-                    <!--<tr>-->
-                        <!--<td><b>-->
-                            <!--{% for fixture_player in next_matchday.home_players %}-->
-                            <!--{{ fixture_player.player.name }}<br/>-->
-                            <!--{% endfor %}-->
-                        <!--</b></td>-->
-                        <!--<td><input class="form-control" type="number" id="home_goals" name="home_goals"-->
-                                   <!--value="{{ next_matchday.home_goals }}"></td>-->
-                        <!--<td><input class="form-control" type="number" id="away_goals" name="away_goals"-->
-                                   <!--value="{{ next_matchday.away_goals }}"></td>-->
-                        <!--<td><b>-->
-                            <!--{% for fixture_player in next_matchday.away_players %}-->
-                            <!--{{ fixture_player.player.name }}<br/>-->
-                            <!--{% endfor %}-->
-                        <!--</b></td>-->
-                        <!--{% if next_matchday.home_goals is None %}-->
-                        <!--<td><input type="submit" value="confirm" class="btn btn-primary btn-sm"></td>-->
-                        <!--{% else %}-->
-                        <!--<td><input type="submit" value="correct" class="btn btn-warning btn-sm"></td>-->
-                        <!--{% endif %}-->
-                    <!--</tr>-->
-                <!--</table>-->
                 <div class="row">
                         <div class="col-4 col-md-2 offset-md-2 col-lg-4 offset-lg-0 text-right"><b>
                             {% for fixture_player in next_matchday.home_players %}
                             {{ fixture_player.player.name }}<br/>
                             {% endfor %}
                         </b></div>
-                        <div class="col-2 col-md-2 col-lg-2"><input class="form-control" type="number" id="home_goals" name="home_goals"
-                                   value="{{ next_matchday.home_goals }}"></div>
-                        <div class="col-2 col-md-2 col-lg-2"><input class="form-control" type="number" id="away_goals" name="away_goals"
-                                   value="{{ next_matchday.away_goals }}"></div>
+                        <div class="col-2 col-md-2 col-lg-2">
+                            <input class="form-control" type="number" id="home_goals" name="home_goals"
+                                   value="{{ next_matchday.home_goals }}">
+                        </div>
+                        <div class="col-2 col-md-2 col-lg-2">
+                            <input class="form-control" type="number" id="away_goals" name="away_goals"
+                                   value="{{ next_matchday.away_goals }}">
+                        </div>
                         <div class="col-4 col-md-2 col-lg-4"><b>
                             {% for fixture_player in next_matchday.away_players %}
                             {{ fixture_player.player.name }}<br />
@@ -58,15 +32,14 @@
                         <div class="col-12 col-md-12 col-lg-12 text-center">
                             <br />
                             {% if next_matchday.home_goals is None %}
-                            <td><input type="submit" value="submit" class="btn btn-primary btn-sm"></td>
+                            <input type="submit" value="submit" class="btn btn-primary btn-sm">
                             {% else %}
-                            <td><input type="submit" value="correct" class="btn btn-warning btn-sm"></td>
+                            <input type="submit" value="correct" class="btn btn-warning btn-sm">
                             {% endif %}
                         </div>
 
                 </div>
             </form>
-            <!--<hr/>-->
             <br/>
             {% endif %}
         </div>
@@ -102,14 +75,11 @@
                 {% endfor %}
             </table>
             <a href="{% url 'home' %}" class="btn btn-sm btn-light">Show full table</a>
-            <!--<hr/>-->
             <br/>
         </div>
         <div class="col-sm-12 col-xl-10 offset-xl-1">
             <br/>
             <h5 class="text-center">Schedule</h5>
-            <!--<p>{{ schedule }}</p>-->
-            <!--<p>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</p>-->
             <table class="table">
                 {% for fixture in schedule %}
                 <tr>
@@ -146,7 +116,6 @@
                 </tr>
                 {% endfor %}
             </table>
-            <!--<hr/>-->
             <br/>
         </div>
     </div>

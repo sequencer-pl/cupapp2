@@ -7,8 +7,8 @@ CupApp is an django-based web application written for manage FIFA/PES cups organ
 ```sh
 $ git clone https://github.com/sequencer-pl/cupapp2.git
 $ cd cupapp2/
-$ pipenv shell
-$ pipenv install
+$ poetry install
+$ poetry shell
 $ cd cupapp2/
 $ python manage.py migrate
 $ python manage.py runserver 8000
