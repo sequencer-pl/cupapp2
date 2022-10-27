@@ -2,7 +2,7 @@
 
 CupApp is an django-based web application written for manage FIFA/PES cups organized among friends.
 
-# Instalation
+# Installation
 
 ```sh
 $ git clone https://github.com/sequencer-pl/cupapp2.git
