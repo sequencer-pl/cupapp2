@@ -1,0 +1,25 @@
+name: CI
+on: [push]
+
+jobs:
+
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Install gnome-keyring - prevents g-dbus-error-quark
+        run: sudo apt install gnome-keyring
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Create log directory
+        run: sudo mkdir /var/log/cupapp2/ && sudo chown $(whoami) /var/log/cupapp2/
+
+      - name: Install CupApp2
+        run: make install
+
+      - name: Run unit tests
+        run: make tests
