@@ -7,7 +7,7 @@ license = "MIT Licence"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Django = "^4.0"
+Django = "^4.1"
 PyYAML = "^6.0"
 pytz = "^2021.3"
 
